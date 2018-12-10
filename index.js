@@ -50,10 +50,34 @@ function getAccessToken(oAuth2Client, callback) {
 
 function listFiles(auth) {
 	const drive = google.drive({version: 'v3', auth});
+	const fileFields = [
+		'id',
+		'name',
+		'createdTime',
+		'description',
+		'fileExtension',
+		'fullFileExtension',
+		'imageMediaMetadata',
+		'kind',
+		'originalFilename',
+		'parents',
+		'properties',
+		'quotaBytesUsed',
+		'size',
+		'webContentLink',
+		'webViewLink'
+	];
+
 	drive.files.list({
-		pageSize: 10,
-		fields: 'nextPageToken, files(id, name)',
+		pageSize: 300,
+		q: 'mimeType="image/jpeg"',
+		fields: `nextPageToken, files(${fileFields.join(',')})`,
 	}, (err, res) => {
+		// console.log(res);
+		fs.writeFile('data', JSON.stringify(res.data), (err) => {
+			if (err) console.error(err);
+			console.log('wrote data file');
+		});
 		if (err) return console.error('API error', err);
 		const files = res.data.files;
 		if (files.length) {
